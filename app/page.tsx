@@ -8,7 +8,7 @@ import {
   PageHeaderDescription,
   PageHeaderHeading,
 } from "@/components/page-header"
-import DashboardPage from "./dashboard/page"
+import DashboardPage from "./app/page"
 
 export default function Page() {
   return (
@@ -25,7 +25,7 @@ export default function Page() {
       </PageHeader>  */}
       <section className="block">
         <div className="overflow-hidden mt-4 rounded-lg border bg-background shadow">
-          <DashboardPage/>
+          
         </div>
       </section>
     </div>
