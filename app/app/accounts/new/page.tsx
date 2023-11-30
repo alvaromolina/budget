@@ -5,9 +5,12 @@ import {
   PageHeaderDescription,
   PageHeaderHeading,
 } from "@/components/page-header"
+import prisma from "@/lib/prisma";
 
 
-export default function SettingsAccountPage() {
+export default async function SettingsAccountPage() {
+
+  const banks = await prisma.bank.findMany({});
   return (
     <>
       <PageHeader className="">
@@ -15,7 +18,6 @@ export default function SettingsAccountPage() {
       <PageHeaderDescription>
       </PageHeaderDescription>
       </PageHeader>
-
       <div className="space-y-6">
         <div>
           <h3 className="text-lg font-medium">Cuenta</h3>
@@ -25,7 +27,7 @@ export default function SettingsAccountPage() {
           </p>
         </div>
         <Separator />
-        <AccountForm />
+        <AccountForm banks={banks} />
       </div>
     </>
   )

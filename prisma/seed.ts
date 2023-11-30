@@ -16,8 +16,13 @@ async function main() {
       password: hashedPassword
     },
   });
-
-  console.log({ alice })
+  
+  const bnb = await prisma.bank.create({
+    data: {
+      name: 'BNB',
+    },
+  });
+  
 }
 main()
   .then(async () => {
