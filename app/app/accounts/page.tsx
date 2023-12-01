@@ -29,6 +29,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { auth } from '@/auth';
+import { deleteAccount } from '@/lib/account-actions'
 
 export default async function Accounts() {
   const session = await auth();
@@ -84,7 +85,7 @@ export default async function Accounts() {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Acciones</DropdownMenuLabel>
               <DropdownMenuItem>
-                <Link href="">Editar</Link>
+                <Link href={`/app/accounts/${account.id}/edit`}>Editar</Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
@@ -93,8 +94,17 @@ export default async function Accounts() {
               <DropdownMenuItem>Añadir transaccion</DropdownMenuItem>
               <DropdownMenuItem>Importar transacciones</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-red-600">
-                Eliminar
+              <DropdownMenuItem>
+                <form className="flex w-full items-left"
+                      action={async () => {
+                          'use server';
+                          await deleteAccount(account.id);
+                      }}
+                      >
+                      <button className="text-red-600 flex w-full">
+                      Eliminar
+                      </button>
+                </form>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

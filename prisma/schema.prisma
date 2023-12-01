@@ -44,11 +44,41 @@ model Account {
   userId        String
   bank          Bank @relation(fields: [bankId], references: [id])
   bankId        String
+  transactions  Transaction[]
   createdAt     DateTime  @default(now()) @map(name: "created_at")
   updatedAt     DateTime  @updatedAt @map(name: "updated_at")
   @@map(name: "accounts")
 }
 
+model BudgetLabel {
+  id            String  @default(cuid()) @id
+  name          String
+  transactionType       TransactionType
+  transactions  Transaction[]
+}
+
+
+model Transaction {
+  id                    String  @default(cuid()) @id
+  value                 Decimal
+  dateTransaction       DateTime
+  transactionType       TransactionType
+  accountId             String
+  account               Account @relation(fields: [accountId], references: [id])
+  budgetLabelId         String
+  budgetLabel           BudgetLabel @relation(fields: [budgetLabelId], references: [id])
+  description           String?
+  reference             String?
+  additionalReference   String?
+  createdAt             DateTime  @default(now()) @map(name: "created_at")
+  updatedAt             DateTime  @updatedAt @map(name: "updated_at")
+  @@map(name: "transactions")
+}
+
+enum TransactionType {
+  CREDIT
+  DEBIT
+}
 
 enum AccountType {
   BANK

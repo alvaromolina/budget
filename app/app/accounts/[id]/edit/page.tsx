@@ -6,11 +6,23 @@ import {
   PageHeaderHeading,
 } from "@/components/page-header"
 import prisma from "@/lib/prisma";
+import { notFound } from 'next/navigation';
 
 
-export default async function Page() {
-
+export default async function Page({ params }: { params: { id: string } }) {
+  const id = params.id;
   const banks = await prisma.bank.findMany({});
+  const account = await prisma.account.findUnique({
+    where: {
+      id,
+    },
+  });
+  
+  if (!account) {
+    notFound();
+  }
+
+
   return (
     <>
       <PageHeader className="">
@@ -27,7 +39,7 @@ export default async function Page() {
           </p>
         </div>
         <Separator />
-        <AccountForm banks={banks} />
+        <AccountForm account={account} banks={banks}  />
       </div>
     </>
   )

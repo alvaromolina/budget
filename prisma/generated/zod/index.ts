@@ -1,10 +1,31 @@
 import { z } from 'zod';
-import type { Prisma } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 
 /////////////////////////////////////////
 // HELPER FUNCTIONS
 /////////////////////////////////////////
 
+// DECIMAL
+//------------------------------------------------------
+
+export const DecimalJsLikeSchema: z.ZodType<Prisma.DecimalJsLike> = z.object({
+  d: z.array(z.number()),
+  e: z.number(),
+  s: z.number(),
+  toFixed: z.function(z.tuple([]), z.string()),
+})
+
+export const DECIMAL_STRING_REGEX = /^(?:-?Infinity|NaN|-?(?:0[bB][01]+(?:\.[01]+)?(?:[pP][-+]?\d+)?|0[oO][0-7]+(?:\.[0-7]+)?(?:[pP][-+]?\d+)?|0[xX][\da-fA-F]+(?:\.[\da-fA-F]+)?(?:[pP][-+]?\d+)?|(?:\d+|\d*\.\d+)(?:[eE][-+]?\d+)?))$/;
+
+export const isValidDecimalInput =
+  (v?: null | string | number | Prisma.DecimalJsLike): v is string | number | Prisma.DecimalJsLike => {
+    if (v === undefined || v === null) return false;
+    return (
+      (typeof v === 'object' && 'd' in v && 'e' in v && 's' in v && 'toFixed' in v) ||
+      (typeof v === 'string' && DECIMAL_STRING_REGEX.test(v)) ||
+      typeof v === 'number'
+    )
+  };
 
 /////////////////////////////////////////
 // ENUMS
@@ -18,11 +39,19 @@ export const BankScalarFieldEnumSchema = z.enum(['id','name','createdAt','update
 
 export const AccountScalarFieldEnumSchema = z.enum(['id','name','accountType','userId','bankId','createdAt','updatedAt']);
 
+export const BudgetLabelScalarFieldEnumSchema = z.enum(['id','name','transactionType']);
+
+export const TransactionScalarFieldEnumSchema = z.enum(['id','value','dateTransaction','transactionType','accountId','budgetLabelId','description','reference','additionalReference','createdAt','updatedAt']);
+
 export const SortOrderSchema = z.enum(['asc','desc']);
 
 export const QueryModeSchema = z.enum(['default','insensitive']);
 
 export const NullsOrderSchema = z.enum(['first','last']);
+
+export const TransactionTypeSchema = z.enum(['CREDIT','DEBIT']);
+
+export type TransactionTypeType = `${z.infer<typeof TransactionTypeSchema>}`
 
 export const AccountTypeSchema = z.enum(['BANK','CASH','ASSET','DEBT','INVESTMENT']);
 
@@ -67,9 +96,7 @@ export type Bank = z.infer<typeof BankSchema>
 export const AccountSchema = z.object({
   accountType: AccountTypeSchema,
   id: z.string().cuid(),
-  name: z.string({
-    required_error: "Please select a name to display.",
-  }),
+  name: z.string(),
   userId: z.string(),
   bankId: z.string(),
   createdAt: z.coerce.date(),
@@ -77,3 +104,35 @@ export const AccountSchema = z.object({
 })
 
 export type Account = z.infer<typeof AccountSchema>
+
+/////////////////////////////////////////
+// BUDGET LABEL SCHEMA
+/////////////////////////////////////////
+
+export const BudgetLabelSchema = z.object({
+  transactionType: TransactionTypeSchema,
+  id: z.string().cuid(),
+  name: z.string(),
+})
+
+export type BudgetLabel = z.infer<typeof BudgetLabelSchema>
+
+/////////////////////////////////////////
+// TRANSACTION SCHEMA
+/////////////////////////////////////////
+
+export const TransactionSchema = z.object({
+  transactionType: TransactionTypeSchema,
+  id: z.string().cuid(),
+  value: z.instanceof(Prisma.Decimal, { message: "Field 'value' must be a Decimal. Location: ['Models', 'Transaction']"}),
+  dateTransaction: z.coerce.date(),
+  accountId: z.string(),
+  budgetLabelId: z.string(),
+  description: z.string().nullable(),
+  reference: z.string().nullable(),
+  additionalReference: z.string().nullable(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+})
+
+export type Transaction = z.infer<typeof TransactionSchema>

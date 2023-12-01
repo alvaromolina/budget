@@ -5,10 +5,9 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { AccountSchema } from "@/prisma/generated/zod"
-import { createAccount } from '@/lib/account-actions';
-import { Bank } from "@prisma/client"
-
-const FormSchema = AccountSchema.omit({ id: true, createdAt: true, updatedAt: true, userId: true});
+import { createAccount, updateAccount } from '@/lib/account-actions';
+import { Bank, Account } from "@prisma/client"
+import {useState} from "react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -31,23 +30,45 @@ import { toast } from "@/components/ui/use-toast"
 
 
 
-export function AccountForm({ banks }: { banks: Bank[] }) {
-  const form = useForm<z.infer<typeof FormSchema>>({
-    resolver: zodResolver(FormSchema),
-  })
+export function AccountForm({ banks, account }: { banks: Bank[] , account?: Account} ) {
 
-  async function  onSubmit(data: z.infer<typeof FormSchema>) {
-    toast({
-      title: "You submitted the following values:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">dsdsd</code>
-        </pre>
-      ),
-    })
-    const response = await createAccount(data);
+  const CreateFormSchema = AccountSchema.omit({ id: true, createdAt: true, updatedAt: true, userId: true});
+  const UpdateFormSchema = AccountSchema.omit({ updatedAt: true});
+  type CreateAccountFormValues = z.infer<typeof CreateFormSchema>
+  type UpdateAccountFormValues = z.infer<typeof UpdateFormSchema>
+  const defaultValuesCreate: Partial<CreateAccountFormValues> =   {}
+  const defaultValuesUpdate: Partial<UpdateAccountFormValues> =   account ? account : {}
+  const defaultValues: Partial<UpdateAccountFormValues> =  account ? defaultValuesUpdate : defaultValuesCreate
+  const formCreate = useForm<CreateAccountFormValues>({
+    resolver: zodResolver(CreateFormSchema),
+    defaultValues
+  });
+  const formUpdate = useForm<UpdateAccountFormValues>({
+    resolver: zodResolver(UpdateFormSchema),
+    defaultValues
+  });
+  const form = account ? formUpdate : formCreate
+  const [errorMessage, setErrorMessage] = useState("");
+  
+  async function  onSubmitUpdate(data: UpdateAccountFormValues) {
+    const response = await updateAccount(data);
+    console.log(response)
+    if (response?.message){
+      setErrorMessage(response?.message)
+      console.log(errorMessage)
 
+    }
   }
+  async function  onSubmitCreate(data: CreateAccountFormValues) {
+    const response = await createAccount(data);
+    console.log(response)
+    if (response?.message){
+      setErrorMessage(response?.message)
+      console.log(errorMessage)
+
+    }
+  }
+  const onSubmit = !account?  onSubmitCreate : onSubmitUpdate
 
   return (
     <Form {...form}>
@@ -130,6 +151,12 @@ export function AccountForm({ banks }: { banks: Bank[] }) {
             </FormItem>
           )}
         />
+          <p
+            className="text-sm font-medium text-destructive"
+          >
+            {errorMessage}
+          </p>
+        <p></p>
         <Button type="submit">Submit</Button>
       </form>
     </Form>
