@@ -8,15 +8,13 @@ import { AccountSchema } from "@/prisma/generated/zod";
 import { auth } from '@/auth';
 
  
-const CreateAccount = AccountSchema.omit({ id: true, createdAt: true, updatedAt: true,  userId: true});
-
-const UpdateAccount = AccountSchema.omit({ updatedAt: true });
+const FormSchema = AccountSchema.partial().merge(AccountSchema.omit({ id: true, createdAt: true, updatedAt: true, userId: true}));
 
 
-export async function createAccount(data: z.infer<typeof CreateAccount>) {
+export async function createAccount(data: z.infer<typeof FormSchema>) {
     const session = await auth();
     const userId = session?.user?.id;
-    const validatedFields = CreateAccount.safeParse(data);
+    const validatedFields = FormSchema.safeParse(data);
     if (!validatedFields.success) {
         return {
         errors: validatedFields.error.flatten().fieldErrors,
@@ -44,8 +42,8 @@ export async function createAccount(data: z.infer<typeof CreateAccount>) {
 }
 
 
-export async function updateAccount(data: z.infer<typeof UpdateAccount>) {
-    const validatedFields = UpdateAccount.safeParse(data);
+export async function updateAccount(data: z.infer<typeof FormSchema>) {
+    const validatedFields = FormSchema.safeParse(data);
     if (!validatedFields.success) {
         return {
         errors: validatedFields.error.flatten().fieldErrors,

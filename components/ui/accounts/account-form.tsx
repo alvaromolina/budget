@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { AccountSchema } from "@/prisma/generated/zod"
 import { createAccount, updateAccount } from '@/lib/account-actions';
-import { Bank, Account } from "@prisma/client"
+import { Bank, Account, AccountType } from "@prisma/client"
 import {useState} from "react"
 
 import { Button } from "@/components/ui/button"
@@ -27,31 +27,27 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { toast } from "@/components/ui/use-toast"
+import { Input } from "@/components/ui/input"
 
 
 
-export function AccountForm({ banks, account }: { banks: Bank[] , account?: Account} ) {
+export function AccountForm({ accountTypes, banks, account }: { accountTypes: AccountType[], banks: Bank[] , account?: Account} ) {
 
-  const CreateFormSchema = AccountSchema.omit({ id: true, createdAt: true, updatedAt: true, userId: true});
-  const UpdateFormSchema = AccountSchema.omit({ updatedAt: true});
-  type CreateAccountFormValues = z.infer<typeof CreateFormSchema>
-  type UpdateAccountFormValues = z.infer<typeof UpdateFormSchema>
-  const defaultValuesCreate: Partial<CreateAccountFormValues> =   {}
-  const defaultValuesUpdate: Partial<UpdateAccountFormValues> =   account ? account : {}
-  const defaultValues: Partial<UpdateAccountFormValues> =  account ? defaultValuesUpdate : defaultValuesCreate
-  const formCreate = useForm<CreateAccountFormValues>({
-    resolver: zodResolver(CreateFormSchema),
-    defaultValues
-  });
-  const formUpdate = useForm<UpdateAccountFormValues>({
-    resolver: zodResolver(UpdateFormSchema),
-    defaultValues
-  });
-  const form = account ? formUpdate : formCreate
-  const [errorMessage, setErrorMessage] = useState("");
+
+  const FormSchema = AccountSchema.partial().merge(AccountSchema.omit({ id: true, createdAt: true, updatedAt: true, userId: true}));
+
   
-  async function  onSubmitUpdate(data: UpdateAccountFormValues) {
-    const response = await updateAccount(data);
+  type AccountFormValues = z.infer<typeof FormSchema>
+  const defaultValues: Partial<AccountFormValues> = account ? account : {}
+  const form = useForm<AccountFormValues>({
+    resolver: zodResolver(FormSchema),
+    defaultValues
+  });
+
+  const [errorMessage, setErrorMessage] = useState("");
+
+  async function  onSubmit(data: AccountFormValues) {
+    const response = account ? await updateAccount(data) : await createAccount(data);
     console.log(response)
     if (response?.message){
       setErrorMessage(response?.message)
@@ -59,16 +55,7 @@ export function AccountForm({ banks, account }: { banks: Bank[] , account?: Acco
 
     }
   }
-  async function  onSubmitCreate(data: CreateAccountFormValues) {
-    const response = await createAccount(data);
-    console.log(response)
-    if (response?.message){
-      setErrorMessage(response?.message)
-      console.log(errorMessage)
 
-    }
-  }
-  const onSubmit = !account?  onSubmitCreate : onSubmitUpdate
 
   return (
     <Form {...form}>
@@ -79,21 +66,11 @@ export function AccountForm({ banks, account }: { banks: Bank[] , account?: Acco
           render={({ field }) => (
             <FormItem>
               <FormLabel>Name</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a verified email to display" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="m@example.com">m@example.com</SelectItem>
-                  <SelectItem value="m@google.com">m@google.com</SelectItem>
-                  <SelectItem value="m@support.com">m@support.com</SelectItem>
-                </SelectContent>
-              </Select>
+              <FormControl>
+                <Input placeholder="Account name" {...field} />
+              </FormControl>
               <FormDescription>
-                You can manage email addresses in your{" "}
-                <Link href="/examples/forms">email settings</Link>.
+                Name of the account
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -104,11 +81,11 @@ export function AccountForm({ banks, account }: { banks: Bank[] , account?: Acco
           name="bankId"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name</FormLabel>
+              <FormLabel>Banco</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select a verified email to display" />
+                    <SelectValue placeholder="Select a bank" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
@@ -118,8 +95,7 @@ export function AccountForm({ banks, account }: { banks: Bank[] , account?: Acco
                 </SelectContent>
               </Select>
               <FormDescription>
-                You can manage email addresses in your{" "}
-                <Link href="/examples/forms">email settings</Link>.
+                Select a bank
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -134,18 +110,17 @@ export function AccountForm({ banks, account }: { banks: Bank[] , account?: Acco
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select a verified email to display" />
+                    <SelectValue placeholder="Select a account type" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value="CASH">CASH</SelectItem>
-                  <SelectItem value="m@google.com">m@google.com</SelectItem>
-                  <SelectItem value="m@support.com">m@support.com</SelectItem>
+                {accountTypes.map((accountType) => (
+                  <SelectItem key={accountType} value={accountType}>{accountType}</SelectItem>
+                ))}
                 </SelectContent>
               </Select>
               <FormDescription>
-                You can manage email addresses in your{" "}
-                <Link href="/examples/forms">email settings</Link>.
+                You can select the account type
               </FormDescription>
               <FormMessage />
             </FormItem>

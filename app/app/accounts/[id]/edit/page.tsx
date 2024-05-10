@@ -7,11 +7,14 @@ import {
 } from "@/components/page-header"
 import prisma from "@/lib/prisma";
 import { notFound } from 'next/navigation';
+import { AccountType } from "@prisma/client"
 
 
 export default async function Page({ params }: { params: { id: string } }) {
   const id = params.id;
   const banks = await prisma.bank.findMany({});
+  const accountTypes = Object.values(AccountType);
+
   const account = await prisma.account.findUnique({
     where: {
       id,
@@ -39,7 +42,7 @@ export default async function Page({ params }: { params: { id: string } }) {
           </p>
         </div>
         <Separator />
-        <AccountForm account={account} banks={banks}  />
+        <AccountForm account={account} accountTypes={accountTypes} banks={banks}  />
       </div>
     </>
   )

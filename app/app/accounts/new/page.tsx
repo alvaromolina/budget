@@ -6,11 +6,14 @@ import {
   PageHeaderHeading,
 } from "@/components/page-header"
 import prisma from "@/lib/prisma";
+import { AccountType } from "@prisma/client";
 
 
 export default async function Page() {
 
   const banks = await prisma.bank.findMany({});
+  const accountTypes = Object.values(AccountType);
+
   return (
     <>
       <PageHeader className="">
@@ -27,7 +30,7 @@ export default async function Page() {
           </p>
         </div>
         <Separator />
-        <AccountForm banks={banks} />
+        <AccountForm accountTypes={accountTypes}banks={banks} />
       </div>
     </>
   )
