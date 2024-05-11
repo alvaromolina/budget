@@ -1,5 +1,7 @@
 import { Separator } from "@/components/ui/separator"
 import { AccountForm } from "@/components/ui/accounts/account-form"
+import { MoneyAccount } from "@prisma/client"
+
 import {
   PageHeader,
   PageHeaderDescription,
@@ -15,7 +17,7 @@ export default async function Page({ params }: { params: { id: string } }) {
   const banks = await prisma.bank.findMany({});
   const accountTypes = Object.values(AccountType);
 
-  const account = await prisma.account.findUnique({
+  const account = await prisma.moneyAccount.findUnique({
     where: {
       id,
     },
@@ -24,6 +26,7 @@ export default async function Page({ params }: { params: { id: string } }) {
   if (!account) {
     notFound();
   }
+  delete (account as Partial<MoneyAccount>)['balance']
 
 
   return (

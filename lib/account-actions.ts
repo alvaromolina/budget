@@ -4,11 +4,11 @@ import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import prisma from "@/lib/prisma";
-import { AccountSchema } from "@/prisma/generated/zod";
+import { MoneyAccountSchema } from "@/prisma/generated/zod";
 import { auth } from '@/auth';
 
  
-const FormSchema = AccountSchema.partial().merge(AccountSchema.omit({ id: true, createdAt: true, updatedAt: true, userId: true}));
+const FormSchema = MoneyAccountSchema.partial().merge(MoneyAccountSchema.omit({ id: true, createdAt: true, updatedAt: true, userId: true, balance: true}));
 
 
 export async function createAccount(data: z.infer<typeof FormSchema>) {
@@ -22,8 +22,9 @@ export async function createAccount(data: z.infer<typeof FormSchema>) {
         };
     }
     const { name,  accountType, bankId } = validatedFields.data;
+
     try{
-        const account = await prisma.account.create({ 
+        const account = await prisma.moneyAccount.create({ 
             data: {
                 userId,
                 name,
@@ -33,6 +34,7 @@ export async function createAccount(data: z.infer<typeof FormSchema>) {
         })
     }
     catch(error){
+        console.log(error)
         return {
             message: 'Database Error: Failed to Create Account.',
         };
@@ -52,7 +54,7 @@ export async function updateAccount(data: z.infer<typeof FormSchema>) {
     }
     const { id, name, accountType, bankId } = validatedFields.data;
     try{
-        const account = await prisma.account.update({ 
+        const account = await prisma.moneyAccount.update({ 
             where: {
                 id,
               },
@@ -73,7 +75,7 @@ export async function updateAccount(data: z.infer<typeof FormSchema>) {
 }
 
 export async function deleteAccount(id: string) {
-    const deleteAccount = await prisma.account.delete({
+    const deleteAccount = await prisma.moneyAccount.delete({
         where: {
             id: id,
         },

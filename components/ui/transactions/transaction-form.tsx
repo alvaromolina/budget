@@ -10,7 +10,7 @@ import { TransactionSchema   } from '@/prisma/zod-extended';
 import { createTransaction, updateTransaction } from '@/lib/transaction-actions';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation'
-import { Prisma, BudgetLabel, Account, Transaction, TransactionType } from '@prisma/client';
+import { Prisma, BudgetLabel, MoneyAccount, Transaction, TransactionType } from '@prisma/client';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -80,10 +80,8 @@ export function TransactionForm({
 
 
   async function onSubmit(data: TransactionFormValues) {
-    console.log(data)
     const response = transaction ? await updateTransaction(data) : await createTransaction(data);
     if (response?.message) {
-      console.log(errorMessage);
       setErrorMessage(response.message);
     } else {
       toast({

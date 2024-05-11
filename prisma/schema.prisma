@@ -22,7 +22,7 @@ model User {
   name          String?
   email         String?   @unique
   password      String
-  accounts      Account[]
+  accounts      MoneyAccount[]
   createdAt     DateTime  @default(now()) @map(name: "created_at")
   updatedAt     DateTime  @updatedAt @map(name: "updated_at")
   @@map(name: "users")
@@ -31,24 +31,25 @@ model User {
 model Bank {
   id            String  @default(cuid()) @id
   name          String
-  accounts      Account[]
+  accounts      MoneyAccount[]
   createdAt     DateTime  @default(now()) @map(name: "created_at")
   updatedAt     DateTime  @updatedAt @map(name: "updated_at")
   @@map(name: "banks")
 }
 
-model Account {
+model MoneyAccount {
   id            String  @default(cuid()) @id
   name          String
   accountType   AccountType @default(BANK)
   user          User @relation(fields: [userId], references: [id])
   userId        String
-  bank          Bank @relation(fields: [bankId], references: [id])
-  bankId        String
+  bank          Bank? @relation(fields: [bankId], references: [id])
+  bankId        String?
+  balance       Decimal? @default(0)
   transactions  Transaction[]
   createdAt     DateTime  @default(now()) @map(name: "created_at")
   updatedAt     DateTime  @updatedAt @map(name: "updated_at")
-  @@map(name: "accounts")
+  @@map(name: "money_accounts")
 }
 
 model BudgetLabel {
@@ -65,7 +66,7 @@ model Transaction {
   dateTransaction       DateTime
   transactionType       TransactionType
   accountId             String
-  account               Account @relation(fields: [accountId], references: [id])
+  account               MoneyAccount @relation(fields: [accountId], references: [id])
   budgetLabelId         String?
   budgetLabel           BudgetLabel? @relation(fields: [budgetLabelId], references: [id])
   description           String?

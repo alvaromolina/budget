@@ -1,12 +1,11 @@
 "use client"
 
-import Link from "next/link"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import * as z from "zod"
-import { AccountSchema } from "@/prisma/generated/zod"
+import { MoneyAccountSchema } from "@/prisma/generated/zod"
 import { createAccount, updateAccount } from '@/lib/account-actions';
-import { Bank, Account, AccountType } from "@prisma/client"
+import { Bank, MoneyAccount, AccountType, TransactionType } from "@prisma/client"
 import {useState} from "react"
 import { useRouter } from 'next/navigation'
 
@@ -33,27 +32,39 @@ import { Input } from "@/components/ui/input"
 
 
 
-export function AccountForm({ accountTypes, banks, account }: { accountTypes: AccountType[], banks: Bank[] , account?: Account} ) {
+export function AccountForm({ accountTypes, banks, account }: { accountTypes: AccountType[], banks: Bank[] , account?: MoneyAccount} ) {
 
 
-  const FormSchema = AccountSchema.partial().merge(AccountSchema.omit({ id: true, createdAt: true, updatedAt: true, userId: true}));
+  const FormSchema = MoneyAccountSchema.partial().merge(MoneyAccountSchema.omit({ id: true, createdAt: true, updatedAt: true, userId: true, balance: true}));
 
   const router = useRouter();
 
+  if (account){
+    delete (account as Partial<MoneyAccount>)['balance']
+  }
   type AccountFormValues = z.infer<typeof FormSchema>
-  const defaultValues: Partial<AccountFormValues> = account ? account : {}
+  const defaultValues: Partial<AccountFormValues> = account ? account :  {
+    name: "",
+    bankId: null,
+    accountType: AccountType.ASSET,
+  };
+
   const form = useForm<AccountFormValues>({
     resolver: zodResolver(FormSchema),
     defaultValues
   });
 
-  console.log(defaultValues)
+  console.log(form)
 
   const [errorMessage, setErrorMessage] = useState("");
 
-  async function  onSubmit(data: AccountFormValues) {
+  async function  onSubmit(data: any) {
+    console.log(1);
+
+    console.log(data);
     const response = account ? await updateAccount(data) : await createAccount(data);
     console.log(response)
+
     if (response?.message){
       setErrorMessage(response?.message)
       console.log(errorMessage)
@@ -91,7 +102,10 @@ export function AccountForm({ accountTypes, banks, account }: { accountTypes: Ac
           render={({ field }) => (
             <FormItem>
               <FormLabel>Banco</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select  
+                onValueChange={field.onChange}
+                defaultValue={field.value ?? undefined} 
+                >
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a bank" />
@@ -115,7 +129,7 @@ export function AccountForm({ accountTypes, banks, account }: { accountTypes: Ac
           name="accountType"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name</FormLabel>
+              <FormLabel>Account Type</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>

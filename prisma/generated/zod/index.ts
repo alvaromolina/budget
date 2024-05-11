@@ -37,7 +37,7 @@ export const UserScalarFieldEnumSchema = z.enum(['id','name','email','password',
 
 export const BankScalarFieldEnumSchema = z.enum(['id','name','createdAt','updatedAt']);
 
-export const AccountScalarFieldEnumSchema = z.enum(['id','name','accountType','userId','bankId','createdAt','updatedAt']);
+export const MoneyAccountScalarFieldEnumSchema = z.enum(['id','name','accountType','userId','bankId','balance','createdAt','updatedAt']);
 
 export const BudgetLabelScalarFieldEnumSchema = z.enum(['id','name','transactionType']);
 
@@ -90,20 +90,21 @@ export const BankSchema = z.object({
 export type Bank = z.infer<typeof BankSchema>
 
 /////////////////////////////////////////
-// ACCOUNT SCHEMA
+// MONEY ACCOUNT SCHEMA
 /////////////////////////////////////////
 
-export const AccountSchema = z.object({
+export const MoneyAccountSchema = z.object({
   accountType: AccountTypeSchema,
   id: z.string().cuid(),
   name: z.string(),
   userId: z.string(),
-  bankId: z.string(),
+  bankId: z.string().nullable(),
+  balance: z.instanceof(Prisma.Decimal, { message: "Field 'balance' must be a Decimal. Location: ['Models', 'MoneyAccount']"}).nullable(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
 })
 
-export type Account = z.infer<typeof AccountSchema>
+export type MoneyAccount = z.infer<typeof MoneyAccountSchema>
 
 /////////////////////////////////////////
 // BUDGET LABEL SCHEMA

@@ -34,7 +34,7 @@ import { deleteAccount } from '@/lib/account-actions'
 export default async function Accounts() {
   const session = await auth();
   const userId = session?.user?.id;
-  const accounts = await prisma.account.findMany({where: {userId: userId}, include: {
+  const accounts = await prisma.moneyAccount.findMany({where: {userId: userId}, include: {
     bank: true,
   }});
   
@@ -72,8 +72,8 @@ export default async function Accounts() {
       <TableRow key={account.id}>
         <TableCell className="font-medium"> { account.name }</TableCell>
         <TableCell>{ account.accountType }</TableCell>
-        <TableCell>{ account.bank.name }</TableCell>
-        <TableCell className="text-right">$250.00</TableCell>
+        <TableCell>{ account.bank ? account.bank.name : '' }</TableCell>
+        <TableCell className="text-right">$ { account.balance ? account.balance.toString() : '0'}</TableCell>
         <TableCell>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
