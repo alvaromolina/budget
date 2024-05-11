@@ -8,6 +8,8 @@ import { AccountSchema } from "@/prisma/generated/zod"
 import { createAccount, updateAccount } from '@/lib/account-actions';
 import { Bank, Account, AccountType } from "@prisma/client"
 import {useState} from "react"
+import { useRouter } from 'next/navigation'
+
 
 import { Button } from "@/components/ui/button"
 import {
@@ -36,13 +38,16 @@ export function AccountForm({ accountTypes, banks, account }: { accountTypes: Ac
 
   const FormSchema = AccountSchema.partial().merge(AccountSchema.omit({ id: true, createdAt: true, updatedAt: true, userId: true}));
 
-  
+  const router = useRouter();
+
   type AccountFormValues = z.infer<typeof FormSchema>
   const defaultValues: Partial<AccountFormValues> = account ? account : {}
   const form = useForm<AccountFormValues>({
     resolver: zodResolver(FormSchema),
     defaultValues
   });
+
+  console.log(defaultValues)
 
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -56,6 +61,10 @@ export function AccountForm({ accountTypes, banks, account }: { accountTypes: Ac
     }
   }
 
+
+  const handleCancel = () => {
+    router.back(); // Navigate back to the previous page
+  };
 
   return (
     <Form {...form}>
@@ -132,7 +141,14 @@ export function AccountForm({ accountTypes, banks, account }: { accountTypes: Ac
             {errorMessage}
           </p>
         <p></p>
-        <Button type="submit">Submit</Button>
+
+        <div className='flex space-x-4'>
+          <Button type="submit">Submit</Button>
+          <Button type='button' variant='outline' onClick={handleCancel}>
+              Cancel
+            </Button>
+        </div>
+
       </form>
     </Form>
   )

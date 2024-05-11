@@ -1,10 +1,10 @@
+
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react"
 import prisma from "@/lib/prisma";
 
 import { PlusCircledIcon } from "@radix-ui/react-icons"
-
 
 import {
     PageHeader,
@@ -29,51 +29,57 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { auth } from '@/auth';
-import { deleteAccount } from '@/lib/account-actions'
+import { deleteTransaction } from '@/lib/transaction-actions'
 
-export default async function Accounts() {
+export default async function Transactions({ params }: { params: { id: string } }) {
+  const accountId = params.id;
   const session = await auth();
   const userId = session?.user?.id;
-  const accounts = await prisma.account.findMany({where: {userId: userId}, include: {
-    bank: true,
-  }});
+  const transactions = await prisma.transaction.findMany({where: {accountId: accountId}});
   
   return (
     <>
       <PageHeader className="">
-        <PageHeaderHeading>Cuentas</PageHeaderHeading>
+        <PageHeaderHeading>Transactions</PageHeaderHeading>
         <PageHeaderDescription>
-         Administra tus cuentas:  bancos, efectivo, creditos, bienes, inversiones y otras
+         Manage your transactions
         </PageHeaderDescription>
       </PageHeader>
         <div className="float-right">
             <Link
-            href="/app/accounts/new">
+            href={`/app/accounts/${accountId}/transactions/new`}>
                 <Button>
                     <PlusCircledIcon className="mr-2 h-4 w-4" />
-                    Añadir cuenta
+                    Add Transaction
                 </Button>
             </Link>
         </div>
 
         <Table>
-  <TableCaption>Un listado de tus cuentas.</TableCaption>
+  <TableCaption>A list of your transactions.</TableCaption>
   <TableHeader>
     <TableRow>
-      <TableHead>Nombre</TableHead>
-      <TableHead>Tipo</TableHead>
-      <TableHead>Banco</TableHead>
-      <TableHead className="text-right">Balance</TableHead>
-
+      <TableHead>Transaction Type</TableHead>
+      <TableHead>Value</TableHead>
+      <TableHead>Date</TableHead>
+      <TableHead>Account ID</TableHead>
+      <TableHead>Budget Label ID</TableHead>
+      <TableHead>Description</TableHead>
+      <TableHead>Reference</TableHead>
+      <TableHead>Additional Reference</TableHead>
     </TableRow>
   </TableHeader>
   <TableBody>
-    {accounts.map((account) => (
-      <TableRow key={account.id}>
-        <TableCell className="font-medium"> { account.name }</TableCell>
-        <TableCell>{ account.accountType }</TableCell>
-        <TableCell>{ account.bank.name }</TableCell>
-        <TableCell className="text-right">$250.00</TableCell>
+    {transactions.map((transaction) => (
+      <TableRow key={transaction.id}>
+        <TableCell className="font-medium"> { transaction.transactionType }</TableCell>
+        <TableCell>{ transaction.value.toString() }</TableCell>
+        <TableCell>{ transaction.dateTransaction.toLocaleDateString() }</TableCell>
+        <TableCell>{ transaction.accountId }</TableCell>
+        <TableCell>{ transaction.budgetLabelId }</TableCell>
+        <TableCell>{ transaction.description }</TableCell>
+        <TableCell>{ transaction.reference }</TableCell>
+        <TableCell>{ transaction.additionalReference }</TableCell>
         <TableCell>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -83,26 +89,20 @@ export default async function Accounts() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem>
-                <Link href={`/app/accounts/${account.id}/edit`}>Editar</Link>
+                <Link href={`/app/transactions/${transaction.id}/edit`}>Edit</Link>
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <Link  href={`/app/accounts/${account.id}/transactions`}>Ver transacciones</Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem>Añadir transaccion</DropdownMenuItem>
-              <DropdownMenuItem>Importar transacciones</DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
                 <form className="flex w-full items-left"
                       action={async () => {
                           'use server';
-                          await deleteAccount(account.id);
+                          await deleteTransaction(transaction.id);
                       }}
                       >
                       <button className="text-red-600 flex w-full">
-                      Eliminar
+                      Delete
                       </button>
                 </form>
               </DropdownMenuItem>

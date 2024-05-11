@@ -1,0 +1,44 @@
+"use client"
+
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
+import prisma from "@/lib/prisma";
+import { PlusCircledIcon } from "@radix-ui/react-icons"
+
+
+
+import {
+    PageHeader,
+    PageHeaderDescription,
+    PageHeaderHeading,
+  } from "@/components/page-header"
+
+import { auth } from '@/auth';
+import { defineCustomElements } from "@revolist/revogrid/loader"; // webcomponent definition loader 
+
+import { RevoGrid } from "@revolist/react-datagrid";
+
+export default  function Page() {
+
+
+
+    defineCustomElements();
+    const columns =  [{ prop: "name" }]
+    const source = [{ name: "1" }, { name: "2" }]
+
+    return (
+        <>
+      <PageHeader className="">
+      <PageHeaderHeading></PageHeaderHeading>
+      <PageHeaderDescription>
+      </PageHeaderDescription>
+      </PageHeader>
+            <RevoGrid
+            columns={[{ prop: "name" , name: "name" }, { prop: "desc" , name: "desc" } ]}
+            source={[{ name: "1",  desc: "X" }, { name: "2", desc: "X"  }]}
+            />
+
+
+        </>
+    )
+}

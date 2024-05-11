@@ -7,6 +7,7 @@ generator client {
 generator zod {
   provider          = "zod-prisma-types"
   createInputTypes  = false
+  useInstanceOfForDecimal = false
 }
 
 datasource db {
@@ -65,8 +66,8 @@ model Transaction {
   transactionType       TransactionType
   accountId             String
   account               Account @relation(fields: [accountId], references: [id])
-  budgetLabelId         String
-  budgetLabel           BudgetLabel @relation(fields: [budgetLabelId], references: [id])
+  budgetLabelId         String?
+  budgetLabel           BudgetLabel? @relation(fields: [budgetLabelId], references: [id])
   description           String?
   reference             String?
   additionalReference   String?

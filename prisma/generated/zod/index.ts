@@ -127,7 +127,7 @@ export const TransactionSchema = z.object({
   value: z.instanceof(Prisma.Decimal, { message: "Field 'value' must be a Decimal. Location: ['Models', 'Transaction']"}),
   dateTransaction: z.coerce.date(),
   accountId: z.string(),
-  budgetLabelId: z.string(),
+  budgetLabelId: z.string().nullable(),
   description: z.string().nullable(),
   reference: z.string().nullable(),
   additionalReference: z.string().nullable(),

@@ -80,3 +80,4 @@ export async function deleteAccount(id: string) {
     })
     revalidatePath('/app/accounts');
 }
+
