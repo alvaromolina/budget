@@ -91,7 +91,7 @@ export default async function Transactions({ params }: { params: { id: string } 
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
               <DropdownMenuItem>
-                <Link href={`/app/transactions/${transaction.id}/edit`}>Edit</Link>
+                <Link href={`/app/accounts/${transaction.id}/transactions/${transaction.id}/edit`}>Edit</Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
