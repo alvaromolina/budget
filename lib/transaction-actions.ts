@@ -156,35 +156,66 @@ export async function deleteTransaction(id: string) {
     revalidatePath('/app/accounts/'+String(transaction?.accountId)+'/transactions');
 }
 
-export async function getMonthlyBalances(): Promise<Array<any>>{
+export interface BalanceDetails {
+    year: number;
+    month: number;
+    runningbalance: number;
+    monthlychange: number;
+    transactionType: string;
+}
+
+export async function getMonthlyBalances(): Promise<Array<BalanceDetails>>{
 
     const session = await auth();
     const userId = session?.user?.id;
     const sqlQuery = `
     WITH DateSeries AS (
-        SELECT generate_series(MIN(DATE_TRUNC('month', "dateTransaction")), MAX(DATE_TRUNC('month', "dateTransaction")), interval '1 month') AS Month
+        SELECT generate_series(MIN(DATE_TRUNC('month', "dateTransaction")), MAX(DATE_TRUNC('month', "dateTransaction")), interval '1 month') AS Month,
+        'CREDIT' as "transactionType"
         FROM Transactions
         JOIN money_accounts ON Transactions."accountId" = money_accounts.id
         WHERE money_accounts."userId" = $1
-
+        UNION
+        SELECT generate_series(MIN(DATE_TRUNC('month', "dateTransaction")), MAX(DATE_TRUNC('month', "dateTransaction")), interval '1 month') AS Month,
+        'DEBIT' as "transactionType"
+        FROM Transactions
+        JOIN money_accounts ON Transactions."accountId" = money_accounts.id
+        WHERE money_accounts."userId" = $1
     ),
     MonthlyTransactions AS (
         SELECT
             DATE_TRUNC('year', "dateTransaction") as Year,
             DATE_TRUNC('month', "dateTransaction") as Month,
-            SUM(value) as MonthlyChange
+            SUM(value) as MonthlyChange,
+            'CREDIT' as "transactionType"
         FROM Transactions
         JOIN money_accounts ON Transactions."accountId" = money_accounts.id
-        WHERE money_accounts."userId" = $1
+        WHERE Transactions.value > 0
+        AND money_accounts."userId" = $1
+        GROUP BY DATE_TRUNC('year', "dateTransaction"), DATE_TRUNC('month', "dateTransaction")
+        UNION 
+        SELECT
+        DATE_TRUNC('year', "dateTransaction") as Year,
+        DATE_TRUNC('month', "dateTransaction") as Month,
+        SUM(value) as MonthlyChange,
+        'DEBIT' as "transactionType"
+        FROM Transactions
+        JOIN money_accounts ON Transactions."accountId" = money_accounts.id
+        WHERE Transactions.value < 0
+        AND money_accounts."userId" = $1
         GROUP BY DATE_TRUNC('year', "dateTransaction"), DATE_TRUNC('month', "dateTransaction")
     )
     SELECT
         EXTRACT(YEAR FROM ds.Month) as Year,
         EXTRACT(MONTH FROM ds.Month) as Month,
         COALESCE(mt.MonthlyChange, 0) as MonthlyChange,
-        SUM(COALESCE(mt.MonthlyChange, 0)) OVER (ORDER BY EXTRACT(YEAR FROM ds.Month), EXTRACT(MONTH FROM ds.Month)) as RunningBalance
+    SUM(COALESCE(mt.MonthlyChange, 0)) OVER (
+        PARTITION BY ds."transactionType"
+        ORDER BY EXTRACT(YEAR FROM ds.Month), EXTRACT(MONTH FROM ds.Month)
+    ) as RunningBalance,
+    ds."transactionType"    
     FROM DateSeries ds
-    LEFT JOIN MonthlyTransactions mt ON ds.Month = mt.Month
+    LEFT JOIN MonthlyTransactions mt ON ds.Month = mt.Month and ds."transactionType" = mt."transactionType"
     ORDER BY Year, Month;
     `;
   

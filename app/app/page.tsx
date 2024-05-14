@@ -18,8 +18,10 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs"
 import { NetworthTotal } from "./components/networth-total"
+import { NetworthActivePasive } from "./components/networth-active-pasive"
+
 import { BudgetTotal } from "./components/budget-total"
-import { getMonthlyBalances } from '@/lib/transaction-actions'
+import { getMonthlyBalances, BalanceDetails } from '@/lib/transaction-actions'
 import { AwardIcon } from "lucide-react"
 
 /*
@@ -36,12 +38,39 @@ import { UserNav } from "@/app/examples/dashboard/components/user-nav"*/
 
 export default async function DashboardPage() {
 
-    const balances = await getMonthlyBalances();
-
-    const formattedData = balances.map(item => ({
+    const balances: BalanceDetails[] = await getMonthlyBalances();
+    const totalBalances = balances.reduce(
+        (acc: {
+            [key: string]: { year: number, month: number, total: number, credit: number, debit: number};
+          }, curr:  BalanceDetails) => {
+            let key = String(curr.year) + '-' + String(curr.month);
+            if (!acc[key]) {
+                acc[key] = { year: curr.year, month: curr.month, total: 0, credit: 0, debit: 0 };
+            }
+            if(curr.transactionType === 'DEBIT'){
+                acc[key].debit += parseFloat(curr.runningbalance.toFixed(2));
+            }
+            else{
+                acc[key].credit += parseFloat(curr.runningbalance.toFixed(2));
+            }
+            acc[key].total += parseFloat(curr.runningbalance.toFixed(2));
+            return acc;
+        },
+        {});
+    
+    const valuesTotalBalances = Object.values(totalBalances);
+    const networthTotal = valuesTotalBalances.map((item: { year: number, month: number, total: number }) => ({
         name: new Date(item.year, item.month - 1).toLocaleString('default', { month: 'short' }),
-        total: item.runningbalance.toFixed(2),
+        total: item.total,
+    }));;
+
+
+    const networthActivePasive = valuesTotalBalances.map(item => ({
+        name: new Date(item.year, item.month - 1).toLocaleString('default', { month: 'short' }),
+        credit: item.credit,
+        debit: item.debit,
      }));
+
 
 
   return (
@@ -144,9 +173,6 @@ export default async function DashboardPage() {
                     <TabsTrigger value="activePasive" >
                         Activo/Pasivo
                     </TabsTrigger>
-                    <TabsTrigger value="detail">
-                        Detalle
-                    </TabsTrigger>
                     </TabsList>
                     <TabsContent value="total" className="space-y-4">
 
@@ -156,7 +182,21 @@ export default async function DashboardPage() {
                             <CardTitle>Total</CardTitle>
                         </CardHeader>
                         <CardContent className="pl-2">
-                         <NetworthTotal data={formattedData} /> 
+                         <NetworthTotal data={networthTotal} /> 
+                        </CardContent>
+                        </Card>
+                    </div>
+                    </TabsContent>
+
+                    <TabsContent value="activePasive" className="space-y-4">
+
+                    <div className="grid gap-4">
+                        <Card className="col-span-4">
+                        <CardHeader>
+                            <CardTitle>Total</CardTitle>
+                        </CardHeader>
+                        <CardContent className="pl-2">
+                            <NetworthActivePasive data={networthActivePasive} /> 
                         </CardContent>
                         </Card>
                     </div>
