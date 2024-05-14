@@ -5,6 +5,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import prisma from "@/lib/prisma";
 import { Prisma} from '@prisma/client';
+import { auth } from '@/auth';
 
 
 import { TransactionSchema   } from '@/prisma/zod-extended';
@@ -156,3 +157,41 @@ export async function deleteTransaction(id: string) {
 
     revalidatePath('/app/accounts/'+String(transaction?.accountId)+'/transactions');
 }
+
+export async function getMonthlyBalances(): Promise<Array<any>>{
+
+    const session = await auth();
+    const userId = session?.user?.id;
+    const sqlQuery = `
+    WITH DateSeries AS (
+        SELECT generate_series(MIN(DATE_TRUNC('month', "dateTransaction")), MAX(DATE_TRUNC('month', "dateTransaction")), interval '1 month') AS Month
+        FROM Transactions
+        JOIN money_accounts ON Transactions."accountId" = money_accounts.id
+        WHERE money_accounts."userId" = $1
+
+    ),
+    MonthlyTransactions AS (
+        SELECT
+            DATE_TRUNC('year', "dateTransaction") as Year,
+            DATE_TRUNC('month', "dateTransaction") as Month,
+            SUM(CASE WHEN "transactionType" = 'CREDIT' THEN value ELSE -value END) as MonthlyChange
+        FROM Transactions
+        JOIN money_accounts ON Transactions."accountId" = money_accounts.id
+        WHERE money_accounts."userId" = $1
+        GROUP BY DATE_TRUNC('year', "dateTransaction"), DATE_TRUNC('month', "dateTransaction")
+    )
+    SELECT
+        EXTRACT(YEAR FROM ds.Month) as Year,
+        EXTRACT(MONTH FROM ds.Month) as Month,
+        COALESCE(mt.MonthlyChange, 0) as MonthlyChange,
+        SUM(COALESCE(mt.MonthlyChange, 0)) OVER (ORDER BY EXTRACT(YEAR FROM ds.Month), EXTRACT(MONTH FROM ds.Month)) as RunningBalance
+    FROM DateSeries ds
+    LEFT JOIN MonthlyTransactions mt ON ds.Month = mt.Month
+    ORDER BY Year, Month;
+    `;
+  
+
+
+  
+    return await prisma.$queryRawUnsafe(sqlQuery, userId);
+  }

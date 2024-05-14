@@ -1,4 +1,3 @@
-"use client"
 
 
 import { Metadata } from "next"
@@ -20,6 +19,8 @@ import {
 } from "@/components/ui/tabs"
 import { NetworthTotal } from "./components/networth-total"
 import { BudgetTotal } from "./components/budget-total"
+import { getMonthlyBalances } from '@/lib/transaction-actions'
+import { AwardIcon } from "lucide-react"
 
 /*
 import { CalendarDateRangePicker } from "@/app/examples/dashboard/components/date-range-picker"
@@ -33,7 +34,16 @@ import { UserNav } from "@/app/examples/dashboard/components/user-nav"*/
   
 
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+
+    const balances = await getMonthlyBalances();
+
+    const formattedData = balances.map(item => ({
+        name: new Date(item.year, item.month - 1).toLocaleString('default', { month: 'short' }),
+        total: item.runningbalance.toFixed(2),
+     }));
+
+
   return (
     <>
 
@@ -146,7 +156,7 @@ export default function DashboardPage() {
                             <CardTitle>Total</CardTitle>
                         </CardHeader>
                         <CardContent className="pl-2">
-                         <NetworthTotal /> 
+                         <NetworthTotal data={formattedData} /> 
                         </CardContent>
                         </Card>
                     </div>
