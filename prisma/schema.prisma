@@ -55,7 +55,6 @@ model MoneyAccount {
 model BudgetLabel {
   id            String  @default(cuid()) @id
   name          String
-  transactionType       TransactionType
   transactions  Transaction[]
 }
 
@@ -64,7 +63,6 @@ model Transaction {
   id                    String  @default(cuid()) @id
   value                 Decimal
   dateTransaction       DateTime
-  transactionType       TransactionType
   accountId             String
   account               MoneyAccount @relation(fields: [accountId], references: [id])
   budgetLabelId         String?
@@ -75,11 +73,6 @@ model Transaction {
   createdAt             DateTime  @default(now()) @map(name: "created_at")
   updatedAt             DateTime  @updatedAt @map(name: "updated_at")
   @@map(name: "transactions")
-}
-
-enum TransactionType {
-  CREDIT
-  DEBIT
 }
 
 enum AccountType {

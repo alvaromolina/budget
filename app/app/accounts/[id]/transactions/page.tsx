@@ -72,7 +72,6 @@ export default async function Transactions({ params }: { params: { id: string } 
   <TableBody>
     {transactions.map((transaction) => (
       <TableRow key={transaction.id}>
-        <TableCell className="font-medium"> { transaction.transactionType }</TableCell>
         <TableCell>{ transaction.value.toString() }</TableCell>
         <TableCell>{ transaction.dateTransaction.toLocaleDateString() }</TableCell>
         <TableCell>{ transaction.accountId }</TableCell>

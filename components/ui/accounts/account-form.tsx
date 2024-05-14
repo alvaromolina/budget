@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form"
 import * as z from "zod"
 import { MoneyAccountSchema } from "@/prisma/generated/zod"
 import { createAccount, updateAccount } from '@/lib/account-actions';
-import { Bank, MoneyAccount, AccountType, TransactionType } from "@prisma/client"
+import { Bank, MoneyAccount, AccountType } from "@prisma/client"
 import {useState} from "react"
 import { useRouter } from 'next/navigation'
 

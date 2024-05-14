@@ -10,7 +10,7 @@ import { TransactionSchema   } from '@/prisma/zod-extended';
 import { createTransaction, updateTransaction } from '@/lib/transaction-actions';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation'
-import { Prisma, BudgetLabel, MoneyAccount, Transaction, TransactionType } from '@prisma/client';
+import { Prisma, BudgetLabel, MoneyAccount, Transaction } from '@prisma/client';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -37,12 +37,10 @@ import { format } from 'date-fns';
 export function TransactionForm({
   accountId,
   budgetLabels,
-  transactionTypes,
   transaction,
 }: {
   accountId: String;
   budgetLabels: BudgetLabel[];
-  transactionTypes: TransactionType[];
   transaction?: Transaction;
 }) {
 
@@ -60,7 +58,6 @@ export function TransactionForm({
 
   type TransactionFormValues = z.infer<typeof FormSchema>;
   const defaultValues: Partial<TransactionFormValues> = transaction ? transaction : {
-    transactionType: TransactionType.CREDIT,
     value: 0,
     dateTransaction: new Date(),
     accountId: accountId.toString(), // Change the type of accountId to string
@@ -134,30 +131,6 @@ export function TransactionForm({
                   onChange={(e) => field.onChange(parseFloat(e.target.value))} // Ensure onChange parses the string to a float
                 />
               </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name='transactionType'
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Transaction Type</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder='Select a transaction type' />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {transactionTypes.map((transactionType) => (
-                    <SelectItem key={transactionType} value={transactionType}>
-                      {transactionType}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
               <FormMessage />
             </FormItem>
           )}

@@ -9,13 +9,11 @@ import {
 } from "@/components/page-header"
 import prisma from "@/lib/prisma";
 import { notFound } from 'next/navigation';
-import { TransactionType } from "@prisma/client"
 
 
 export default async function Page({ params }: { params: { id: string, transactionId: string } }) {
   const transactionId = params.transactionId;
   const accountId = params.transactionId;
-  const transactionTypes = Object.values(TransactionType);
   const budgetLabels = await prisma.budgetLabel.findMany({});
   const transaction = await prisma.transaction.findUnique({
     where: {
@@ -43,7 +41,7 @@ export default async function Page({ params }: { params: { id: string, transacti
           </p>
         </div>
         <Separator />
-        <TransactionForm transaction={transaction} accountId={accountId} transactionTypes={transactionTypes}  budgetLabels={budgetLabels}  />
+        <TransactionForm transaction={transaction} accountId={accountId} budgetLabels={budgetLabels}  />
       </div>
     </>
   )

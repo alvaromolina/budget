@@ -21,13 +21,12 @@ export async function createTransaction(data: z.infer<typeof FormSchema>) {
         };
     }
 
-    const { transactionType, value, dateTransaction, accountId, budgetLabelId, description, reference, additionalReference } = validatedFields.data;
+    const { value, dateTransaction, accountId, budgetLabelId, description, reference, additionalReference } = validatedFields.data;
 
     try {
         const result = await prisma.$transaction(async (prisma) => {
             const transaction = await prisma.transaction.create({
                 data: {
-                    transactionType,
                     value,
                     dateTransaction,
                     accountId,
@@ -42,7 +41,7 @@ export async function createTransaction(data: z.infer<typeof FormSchema>) {
                 where: { id: accountId },
                 data: {
                     balance: {
-                        increment: transactionType === 'CREDIT' ? value : -value
+                        increment: value
                     }
                 }
             });
@@ -69,13 +68,13 @@ export async function updateTransaction(data: z.infer<typeof FormSchema>) {
         };
     }
 
-    const { id, transactionType, value, dateTransaction, accountId, budgetLabelId, description, reference, additionalReference } = validatedFields.data;
+    const { id, value, dateTransaction, accountId, budgetLabelId, description, reference, additionalReference } = validatedFields.data;
 
     try {
         const result = await prisma.$transaction(async (prisma) => {
             const existingTransaction = await prisma.transaction.findUnique({
                 where: { id },
-                select: { value: true, transactionType: true }
+                select: { value: true }
             });
 
             if (!existingTransaction) {
@@ -85,7 +84,6 @@ export async function updateTransaction(data: z.infer<typeof FormSchema>) {
             const transaction = await prisma.transaction.update({
                 where: { id },
                 data: {
-                    transactionType,
                     value,
                     dateTransaction,
                     accountId,
@@ -101,7 +99,7 @@ export async function updateTransaction(data: z.infer<typeof FormSchema>) {
                 where: { id: accountId },
                 data: {
                     balance: {
-                        increment: transactionType === 'CREDIT' ? balanceAdjustment : -balanceAdjustment
+                        increment:  balanceAdjustment 
                     }
                 }
             });
@@ -122,14 +120,14 @@ export async function deleteTransaction(id: string) {
 
     const transaction = await prisma.transaction.findUnique({
         where: { id },
-        select: { value: true, transactionType: true, accountId: true }
+        select: { value: true,  accountId: true }
     });
 
     try {
         const result = await prisma.$transaction(async (prisma) => {
             const transaction = await prisma.transaction.findUnique({
                 where: { id },
-                select: { value: true, transactionType: true, accountId: true }
+                select: { value: true, accountId: true }
             });
 
             if (!transaction) {
@@ -144,7 +142,7 @@ export async function deleteTransaction(id: string) {
                 where: { id: transaction.accountId },
                 data: {
                     balance: {
-                        decrement: transaction.transactionType === 'CREDIT' ? transaction.value : -transaction.value
+                        decrement: transaction.value
                     }
                 }
             });
@@ -174,7 +172,7 @@ export async function getMonthlyBalances(): Promise<Array<any>>{
         SELECT
             DATE_TRUNC('year', "dateTransaction") as Year,
             DATE_TRUNC('month', "dateTransaction") as Month,
-            SUM(CASE WHEN "transactionType" = 'CREDIT' THEN value ELSE -value END) as MonthlyChange
+            SUM(value) as MonthlyChange
         FROM Transactions
         JOIN money_accounts ON Transactions."accountId" = money_accounts.id
         WHERE money_accounts."userId" = $1

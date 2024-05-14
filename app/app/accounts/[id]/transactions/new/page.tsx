@@ -7,7 +7,6 @@ import {
 } from "@/components/page-header"
 import prisma from "@/lib/prisma";
 import { TransactionForm } from "@/components/ui/transactions/transaction-form";
-import { TransactionType } from "@prisma/client";
 
 
 export default async function Page({ params }: { params: { id: string } }) {
@@ -15,7 +14,6 @@ export default async function Page({ params }: { params: { id: string } }) {
   const accountId = params.id;
 
   const budgetLabels = await prisma.budgetLabel.findMany({});
-  const transactionTypes = Object.values(TransactionType);
 
   return (
     <>
@@ -32,7 +30,7 @@ export default async function Page({ params }: { params: { id: string } }) {
           </p>
         </div>
         <Separator />
-        <TransactionForm accountId={accountId} budgetLabels={budgetLabels} transactionTypes={transactionTypes} />
+        <TransactionForm accountId={accountId} budgetLabels={budgetLabels}  />
       </div>
     </>
   )
