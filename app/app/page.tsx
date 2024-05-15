@@ -57,21 +57,38 @@ export default async function DashboardPage() {
             return acc;
         },
         {});
+
+    
     
     const valuesTotalBalances = Object.values(totalBalances);
     const networthTotal = valuesTotalBalances.map((item: { year: number, month: number, total: number }) => ({
         name: new Date(item.year, item.month - 1).toLocaleString('default', { month: 'short' }),
         total: item.total,
-    }));;
-
+    }));
 
     const networthActivePasive = valuesTotalBalances.map(item => ({
         name: new Date(item.year, item.month - 1).toLocaleString('default', { month: 'short' }),
-        credit: item.credit,
-        debit: item.debit,
+        active: item.credit,
+        pasive: item.debit,
      }));
 
 
+
+    const networth = networthTotal[networthTotal.length - 1].total;
+    let networthLastMonth = networthTotal[networthTotal.length - 2].total;
+    const networthIncreasePercentage = (((networth - networthLastMonth) / networthLastMonth) * 100).toLocaleString(undefined, {maximumFractionDigits:2}) ;
+    const networthFormatted= networth.toLocaleString(undefined, {maximumFractionDigits:2});
+
+    const active = networthActivePasive[networthActivePasive.length - 1].active;
+    let activeLastMonth = networthActivePasive[networthActivePasive.length - 2].active;
+    const activeIncreasePercentage = (((active - activeLastMonth) / activeLastMonth) * 100).toLocaleString(undefined, {maximumFractionDigits:2}) ;
+    const activeFormatted= active.toLocaleString(undefined, {maximumFractionDigits:2});
+ 
+    const pasive = networthActivePasive[networthActivePasive.length - 1].pasive;
+    let pasiveLastMonth = networthActivePasive[networthActivePasive.length - 2].pasive;
+    const pasiveIncreasePercentage = (((pasive - pasiveLastMonth) / pasiveLastMonth) * 100).toLocaleString(undefined, {maximumFractionDigits:2}) ;
+    const pasiveFormatted= pasive.toLocaleString(undefined, {maximumFractionDigits:2});
+ 
 
   return (
     <>
@@ -108,9 +125,9 @@ export default async function DashboardPage() {
                         </svg>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">$45,231.89</div>
+                        <div className="text-2xl font-bold">${networthFormatted}</div>
                         <p className="text-xs text-muted-foreground">
-                        +20.1% from last month
+                        {networthIncreasePercentage}% del mes pasado
                         </p>
                     </CardContent>
                     </Card>
@@ -135,9 +152,9 @@ export default async function DashboardPage() {
                         </svg>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">+2350</div>
+                        <div className="text-2xl font-bold">${activeFormatted}</div>
                         <p className="text-xs text-muted-foreground">
-                        +180.1% from last month
+                        {activeIncreasePercentage}% del mes pasado
                         </p>
                     </CardContent>
                     </Card>
@@ -159,9 +176,9 @@ export default async function DashboardPage() {
                         </svg>
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">+12,234</div>
+                        <div className="text-2xl font-bold">${pasiveFormatted}</div>
                         <p className="text-xs text-muted-foreground">
-                        +19% from last month
+                        {pasiveIncreasePercentage}% del mes pasado
                         </p>
                     </CardContent>
                     </Card>
