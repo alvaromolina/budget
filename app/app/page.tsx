@@ -74,18 +74,18 @@ export default async function DashboardPage() {
 
 
 
-    const networth = networthTotal[networthTotal.length - 1].total;
-    let networthLastMonth = networthTotal[networthTotal.length - 2].total;
+    const networth = networthTotal.length>0 ? networthTotal[networthTotal.length - 1].total : 0;
+    let networthLastMonth = networthTotal.length>1 ? networthTotal[networthTotal.length - 2].total : networth;
     const networthIncreasePercentage = (((networth - networthLastMonth) / networthLastMonth) * 100).toLocaleString(undefined, {maximumFractionDigits:2}) ;
     const networthFormatted= networth.toLocaleString(undefined, {maximumFractionDigits:2});
 
-    const active = networthActivePasive[networthActivePasive.length - 1].active;
-    let activeLastMonth = networthActivePasive[networthActivePasive.length - 2].active;
+    const active = networthActivePasive.length>0 ? networthActivePasive[networthActivePasive.length - 1].active : 0;
+    let activeLastMonth = networthActivePasive.length>1 ? networthActivePasive[networthActivePasive.length - 2].active : active;
     const activeIncreasePercentage = (((active - activeLastMonth) / activeLastMonth) * 100).toLocaleString(undefined, {maximumFractionDigits:2}) ;
     const activeFormatted= active.toLocaleString(undefined, {maximumFractionDigits:2});
  
-    const pasive = networthActivePasive[networthActivePasive.length - 1].pasive;
-    let pasiveLastMonth = networthActivePasive[networthActivePasive.length - 2].pasive;
+    const pasive = networthActivePasive.length>0 ? networthActivePasive[networthActivePasive.length - 1].pasive : 0;
+    let pasiveLastMonth = networthActivePasive.length>1 ? networthActivePasive[networthActivePasive.length - 2].pasive : pasive;
     const pasiveIncreasePercentage = (((pasive - pasiveLastMonth) / pasiveLastMonth) * 100).toLocaleString(undefined, {maximumFractionDigits:2}) ;
     const pasiveFormatted= pasive.toLocaleString(undefined, {maximumFractionDigits:2});
  
