@@ -1,9 +1,10 @@
+
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react"
+import {  MoreHorizontal } from "lucide-react"
 import prisma from "@/lib/prisma";
-
 import { PlusCircledIcon } from "@radix-ui/react-icons"
+
 
 
 import {
@@ -32,31 +33,40 @@ import { auth } from '@/auth';
 import { deleteAccount } from '@/lib/account-actions'
 
 export default async function Accounts() {
+
+
   const session = await auth();
   const userId = session?.user?.id;
   const accounts = await prisma.moneyAccount.findMany({where: {userId: userId}, include: {
     bank: true,
   }});
+
+
   
+
   return (
     <>
+
+
+
       <PageHeader className="">
         <PageHeaderHeading>Cuentas</PageHeaderHeading>
         <PageHeaderDescription>
          Administra tus cuentas:  bancos, efectivo, creditos, bienes, inversiones y otras
         </PageHeaderDescription>
       </PageHeader>
-        <div className="float-right">
-            <Link
-            href="/app/accounts/new">
-                <Button>
-                    <PlusCircledIcon className="mr-2 h-4 w-4" />
-                    Añadir cuenta
-                </Button>
-            </Link>
-        </div>
 
-        <Table>
+      <div className="flex float-right space-x-2">
+
+          <Link
+          href="/app/accounts/new">
+              <Button>
+                  <PlusCircledIcon className="mr-2 h-4 w-4" />
+                  Añadir cuenta
+              </Button>
+          </Link>
+        </div>
+<Table>
   <TableCaption>Un listado de tus cuentas.</TableCaption>
   <TableHeader>
     <TableRow>

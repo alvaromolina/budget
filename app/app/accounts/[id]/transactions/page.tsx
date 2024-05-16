@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react"
 import prisma from "@/lib/prisma";
+import { ButtonBar } from "@/components/ui/transactions/button-bar";
+
 
 import { PlusCircledIcon } from "@radix-ui/react-icons"
 
@@ -45,21 +47,12 @@ export default async function Transactions({ params }: { params: { id: string } 
          Manage your transactions
         </PageHeaderDescription>
       </PageHeader>
-        <div className="float-right">
-            <Link
-            href={`/app/accounts/${accountId}/transactions/new`}>
-                <Button>
-                    <PlusCircledIcon className="mr-2 h-4 w-4" />
-                    Add Transaction
-                </Button>
-            </Link>
-        </div>
+      <ButtonBar accountId={accountId}></ButtonBar>
 
         <Table>
   <TableCaption>A list of your transactions.</TableCaption>
   <TableHeader>
     <TableRow>
-      <TableHead>Transaction Type</TableHead>
       <TableHead>Value</TableHead>
       <TableHead>Date</TableHead>
       <TableHead>Account ID</TableHead>
