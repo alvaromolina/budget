@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react"
@@ -56,7 +55,7 @@ export default async function Transactions({ params }: { params: { id: string } 
       <TableHead>Value</TableHead>
       <TableHead>Date</TableHead>
       <TableHead>Account ID</TableHead>
-      <TableHead>Budget Label ID</TableHead>
+      <TableHead>Budget Category</TableHead>
       <TableHead>Description</TableHead>
       <TableHead>Reference</TableHead>
       <TableHead>Additional Reference</TableHead>

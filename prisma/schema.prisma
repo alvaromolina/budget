@@ -54,11 +54,6 @@ model MoneyAccount {
   @@map(name: "money_accounts")
 }
 
-model BudgetLabel {
-  id            String  @default(cuid()) @id
-  name          String
-  transactions  Transaction[]
-}
 
 
 model Transaction {
@@ -67,13 +62,13 @@ model Transaction {
   dateTransaction       DateTime
   accountId             String
   account               MoneyAccount @relation(fields: [accountId], references: [id])
-  budgetLabelId         String?
-  budgetLabel           BudgetLabel? @relation(fields: [budgetLabelId], references: [id])
   description           String?
   reference             String?
   additionalReference   String?
   createdAt             DateTime  @default(now()) @map(name: "created_at")
   updatedAt             DateTime  @updatedAt @map(name: "updated_at")
+  budgetCategoryId String?
+  budgetCategory   BudgetCategory? @relation(fields: [budgetCategoryId], references: [id])
   @@map(name: "transactions")
 }
 
@@ -94,6 +89,7 @@ model BudgetCategory {
   value    Decimal
   budgetId String
   budget   Budget @relation(fields: [budgetId], references: [id])
+  transactions  Transaction[]
   createdAt DateTime @default(now()) @map(name: "created_at")
   updatedAt DateTime @updatedAt @map(name: "updated_at")
   @@map(name: "budget_categories")

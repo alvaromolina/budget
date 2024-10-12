@@ -39,9 +39,7 @@ export const BankScalarFieldEnumSchema = z.enum(['id','name','createdAt','update
 
 export const MoneyAccountScalarFieldEnumSchema = z.enum(['id','name','accountNumber','accountType','userId','bankId','balance','createdAt','updatedAt']);
 
-export const BudgetLabelScalarFieldEnumSchema = z.enum(['id','name']);
-
-export const TransactionScalarFieldEnumSchema = z.enum(['id','value','dateTransaction','accountId','budgetLabelId','description','reference','additionalReference','createdAt','updatedAt']);
+export const TransactionScalarFieldEnumSchema = z.enum(['id','value','dateTransaction','accountId','description','reference','additionalReference','createdAt','updatedAt','budgetCategoryId']);
 
 export const BudgetScalarFieldEnumSchema = z.enum(['id','name','userId','createdAt','updatedAt']);
 
@@ -108,17 +106,6 @@ export const MoneyAccountSchema = z.object({
 export type MoneyAccount = z.infer<typeof MoneyAccountSchema>
 
 /////////////////////////////////////////
-// BUDGET LABEL SCHEMA
-/////////////////////////////////////////
-
-export const BudgetLabelSchema = z.object({
-  id: z.string().cuid(),
-  name: z.string(),
-})
-
-export type BudgetLabel = z.infer<typeof BudgetLabelSchema>
-
-/////////////////////////////////////////
 // TRANSACTION SCHEMA
 /////////////////////////////////////////
 
@@ -127,12 +114,12 @@ export const TransactionSchema = z.object({
   value: z.instanceof(Prisma.Decimal, { message: "Field 'value' must be a Decimal. Location: ['Models', 'Transaction']"}),
   dateTransaction: z.coerce.date(),
   accountId: z.string(),
-  budgetLabelId: z.string().nullable(),
   description: z.string().nullable(),
   reference: z.string().nullable(),
   additionalReference: z.string().nullable(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
+  budgetCategoryId: z.string().nullable(),
 })
 
 export type Transaction = z.infer<typeof TransactionSchema>

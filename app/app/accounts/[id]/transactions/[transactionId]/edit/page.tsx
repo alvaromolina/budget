@@ -14,7 +14,7 @@ import { notFound } from 'next/navigation';
 export default async function Page({ params }: { params: { id: string, transactionId: string } }) {
   const transactionId = params.transactionId;
   const accountId = params.transactionId;
-  const budgetLabels = await prisma.budgetLabel.findMany({});
+  const budgetCategories = await prisma.budgetCategory.findMany({});
   const transaction = await prisma.transaction.findUnique({
     where: {
         id: transactionId,
@@ -41,7 +41,7 @@ export default async function Page({ params }: { params: { id: string, transacti
           </p>
         </div>
         <Separator />
-        <TransactionForm transaction={transaction} accountId={accountId} budgetLabels={budgetLabels}  />
+        <TransactionForm transaction={transaction} accountId={accountId} budgetCategories={budgetCategories}  />
       </div>
     </>
   )

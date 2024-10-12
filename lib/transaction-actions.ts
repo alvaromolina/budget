@@ -21,7 +21,7 @@ export async function createTransaction(data: z.infer<typeof FormSchema>) {
         };
     }
 
-    const { value, dateTransaction, accountId, budgetLabelId, description, reference, additionalReference } = validatedFields.data;
+    const { value, dateTransaction, accountId, budgetCategoryId, description, reference, additionalReference } = validatedFields.data;
 
     try {
         const result = await prisma.$transaction(async (prisma) => {
@@ -30,7 +30,7 @@ export async function createTransaction(data: z.infer<typeof FormSchema>) {
                     value,
                     dateTransaction,
                     accountId,
-                    budgetLabelId,
+                    budgetCategoryId,
                     description,
                     reference,
                     additionalReference
@@ -68,7 +68,7 @@ export async function updateTransaction(data: z.infer<typeof FormSchema>) {
         };
     }
 
-    const { id, value, dateTransaction, accountId, budgetLabelId, description, reference, additionalReference } = validatedFields.data;
+    const { id, value, dateTransaction, accountId, budgetCategoryId, description, reference, additionalReference } = validatedFields.data;
 
     try {
         const result = await prisma.$transaction(async (prisma) => {
@@ -87,7 +87,7 @@ export async function updateTransaction(data: z.infer<typeof FormSchema>) {
                     value,
                     dateTransaction,
                     accountId,
-                    budgetLabelId,
+                    budgetCategoryId,
                     description,
                     reference,
                     additionalReference

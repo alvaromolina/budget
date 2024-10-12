@@ -10,7 +10,7 @@ import { TransactionSchema   } from '@/prisma/zod-extended';
 import { createTransaction, updateTransaction } from '@/lib/transaction-actions';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation'
-import { Prisma, BudgetLabel, MoneyAccount, Transaction } from '@prisma/client';
+import { Prisma,  MoneyAccount, Transaction, BudgetCategory } from '@prisma/client';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -36,11 +36,11 @@ import { format } from 'date-fns';
 
 export function TransactionForm({
   accountId,
-  budgetLabels,
+  budgetCategories,
   transaction,
 }: {
   accountId: String;
-  budgetLabels: BudgetLabel[];
+  budgetCategories: BudgetCategory[];
   transaction?: Transaction;
 }) {
 
@@ -60,8 +60,8 @@ export function TransactionForm({
   const defaultValues: Partial<TransactionFormValues> = transaction ? transaction : {
     value: 0,
     dateTransaction: new Date(),
-    accountId: accountId.toString(), // Change the type of accountId to string
-    budgetLabelId: null,
+    accountId: accountId.toString(),
+    budgetCategoryId: null,
     description: null,
     reference: null,
     additionalReference: null
@@ -135,25 +135,27 @@ export function TransactionForm({
             </FormItem>
           )}
         />
+
+
         <FormField
           control={form.control}
-          name='budgetLabelId'
+          name='budgetCategoryId'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Budget Label</FormLabel>
+              <FormLabel>Budget Category</FormLabel>
               <Select 
                 onValueChange={field.onChange}
-                defaultValue={field.value ?? undefined} // Convert null to undefined
+                defaultValue={field.value ?? undefined}
               >
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder='Select a budget label' />
+                    <SelectValue placeholder='Select a budget category' />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {budgetLabels.map((label) => (
-                    <SelectItem key={label.id} value={label.id}>
-                      {label.name}
+                  {budgetCategories.map((category) => (
+                    <SelectItem key={category.id} value={category.id}>
+                      {category.name}
                     </SelectItem>
                   ))}
                 </SelectContent>

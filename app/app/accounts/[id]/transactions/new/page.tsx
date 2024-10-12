@@ -13,7 +13,7 @@ export default async function Page({ params }: { params: { id: string } }) {
 
   const accountId = params.id;
 
-  const budgetLabels = await prisma.budgetLabel.findMany({});
+  const budgetCategories = await prisma.budgetCategory.findMany({});
 
   return (
     <>
@@ -30,7 +30,10 @@ export default async function Page({ params }: { params: { id: string } }) {
           </p>
         </div>
         <Separator />
-        <TransactionForm accountId={accountId} budgetLabels={budgetLabels}  />
+        <TransactionForm 
+          accountId={accountId} 
+          budgetCategories={budgetCategories} 
+        />
       </div>
     </>
   )
