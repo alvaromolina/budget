@@ -28,7 +28,7 @@ export function MainNav() {
           Cuentas
         </Link>
         <Link
-          href="/docs/components"
+          href="/app/budget"
           className={cn(
             "transition-colors hover:text-foreground/80",
             pathname?.startsWith("/docs/components")
@@ -36,7 +36,7 @@ export function MainNav() {
               : "text-foreground/60"
           )}
         >
-          Presupuestos
+          Presupuesto
         </Link>
 
       </nav>

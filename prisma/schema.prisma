@@ -23,6 +23,7 @@ model User {
   email         String?   @unique
   password      String
   accounts      MoneyAccount[]
+  budgets       Budget[]
   createdAt     DateTime  @default(now()) @map(name: "created_at")
   updatedAt     DateTime  @updatedAt @map(name: "updated_at")
   @@map(name: "users")
@@ -40,7 +41,7 @@ model Bank {
 model MoneyAccount {
   id            String  @default(cuid()) @id
   name          String
-  accountNumber String
+  accountNumber String?
   accountType   AccountType @default(BANK)
   user          User @relation(fields: [userId], references: [id])
   userId        String
@@ -74,6 +75,28 @@ model Transaction {
   createdAt             DateTime  @default(now()) @map(name: "created_at")
   updatedAt             DateTime  @updatedAt @map(name: "updated_at")
   @@map(name: "transactions")
+}
+
+model Budget {
+  id        String   @id @default(cuid())
+  name      String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  categories BudgetCategory[]
+  createdAt DateTime @default(now()) @map(name: "created_at")
+  updatedAt DateTime @updatedAt @map(name: "updated_at")
+  @@map(name: "budgets")
+}
+
+model BudgetCategory {
+  id       String @id @default(cuid())
+  name     String
+  value    Decimal
+  budgetId String
+  budget   Budget @relation(fields: [budgetId], references: [id])
+  createdAt DateTime @default(now()) @map(name: "created_at")
+  updatedAt DateTime @updatedAt @map(name: "updated_at")
+  @@map(name: "budget_categories")
 }
 
 enum AccountType {

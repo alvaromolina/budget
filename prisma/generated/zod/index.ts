@@ -37,11 +37,15 @@ export const UserScalarFieldEnumSchema = z.enum(['id','name','email','password',
 
 export const BankScalarFieldEnumSchema = z.enum(['id','name','createdAt','updatedAt']);
 
-export const MoneyAccountScalarFieldEnumSchema = z.enum(['id','name','accountType','userId','bankId','balance','createdAt','updatedAt']);
+export const MoneyAccountScalarFieldEnumSchema = z.enum(['id','name','accountNumber','accountType','userId','bankId','balance','createdAt','updatedAt']);
 
 export const BudgetLabelScalarFieldEnumSchema = z.enum(['id','name']);
 
 export const TransactionScalarFieldEnumSchema = z.enum(['id','value','dateTransaction','accountId','budgetLabelId','description','reference','additionalReference','createdAt','updatedAt']);
+
+export const BudgetScalarFieldEnumSchema = z.enum(['id','name','userId','createdAt','updatedAt']);
+
+export const BudgetCategoryScalarFieldEnumSchema = z.enum(['id','name','value','budgetId','createdAt','updatedAt']);
 
 export const SortOrderSchema = z.enum(['asc','desc']);
 
@@ -49,7 +53,7 @@ export const QueryModeSchema = z.enum(['default','insensitive']);
 
 export const NullsOrderSchema = z.enum(['first','last']);
 
-export const AccountTypeSchema = z.enum(['BANK','CASH','ASSET','DEBT','INVESTMENT']);
+export const AccountTypeSchema = z.enum(['BANK','CHECKING','SAVINGS','CASH','ASSET','DEBT','INVESTMENT','CREDITCARD']);
 
 export type AccountTypeType = `${z.infer<typeof AccountTypeSchema>}`
 
@@ -93,6 +97,7 @@ export const MoneyAccountSchema = z.object({
   accountType: AccountTypeSchema,
   id: z.string().cuid(),
   name: z.string(),
+  accountNumber: z.string().nullable(),
   userId: z.string(),
   bankId: z.string().nullable(),
   balance: z.instanceof(Prisma.Decimal, { message: "Field 'balance' must be a Decimal. Location: ['Models', 'MoneyAccount']"}).nullable(),
@@ -131,3 +136,32 @@ export const TransactionSchema = z.object({
 })
 
 export type Transaction = z.infer<typeof TransactionSchema>
+
+/////////////////////////////////////////
+// BUDGET SCHEMA
+/////////////////////////////////////////
+
+export const BudgetSchema = z.object({
+  id: z.string().cuid(),
+  name: z.string(),
+  userId: z.string(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+})
+
+export type Budget = z.infer<typeof BudgetSchema>
+
+/////////////////////////////////////////
+// BUDGET CATEGORY SCHEMA
+/////////////////////////////////////////
+
+export const BudgetCategorySchema = z.object({
+  id: z.string().cuid(),
+  name: z.string(),
+  value: z.instanceof(Prisma.Decimal, { message: "Field 'value' must be a Decimal. Location: ['Models', 'BudgetCategory']"}),
+  budgetId: z.string(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+})
+
+export type BudgetCategory = z.infer<typeof BudgetCategorySchema>
